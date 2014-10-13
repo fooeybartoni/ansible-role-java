@@ -8,6 +8,10 @@ Installs Java for RedHat/CentOS 6.x and Debian/Ubuntu linux servers.
 
 None.
 
+## Forked from Daniel Groves excellent repo geerlingguy/ansible-role-java
+
+Thanks Daniel
+
 ## Role Variables
 
 Available variables are listed below, along with default values:
