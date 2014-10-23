@@ -1,23 +1,61 @@
 ---
+- name: JDK | Oracle JDK | Make sure openjdk is uninstalled
+  yum: name=openjdk state=absent
+
+#Only required if we wish to make Debian friendly, currently Centos6.5 is target OS
 - name: Include OS-specific variables.
   include_vars: "{{ ansible_os_family }}.yml"
 
-- name: Ensure Java is installed (RedHat). 
-  yum:
-    name: "{{ item }}"
-    state: installed
-  with_items: java_packages
-  when: ansible_os_family == 'RedHat'
+- name: URL for downloading Java 7
+  set_fact: >
+    download_url="http://download.oracle.com/otn-pub/java/jdk/7u71-b14/jre-7u71-linux-x64.tar.gz"
 
-- name: Update apt cache (Debian).
-  apt:
-    update_cache: yes
-    cache_valid_time: 86400
-  when: ansible_os_family == 'Debian'
+- name: Download folder on guest where tar is placed    
+  set_fact:  >  
+    download_folder="/opt"
 
-- name: Ensure Java is installed (Debian).
-  apt:
-    name: "{{ item }}"
-    state: installed
-  with_items: java_packages
-  when: ansible_os_family == 'Debian'
+- name: Java location folder
+  set_fact: >
+    java_name="{{download_folder}}/jre1.7.0_71"
+
+- name: Java location bin folder for path
+  set_fact: >
+    extra_path="{{java_name}}/bin"
+
+- name:  location of java tar
+  set_fact: >
+    java_archive="{{download_folder}}/jre-7u71-linux-x64.tar.gz"
+ 
+- name: Download Java
+  command: "wget -q -O {{java_archive}} --no-check-certificate --no-cookies --header 'Cookie: oraclelicense=accept-securebackup-cookie' {{download_url}} creates={{java_archive}}"
+
+- name: Unpack archive
+  command: "tar -zxf {{java_archive}} -C {{download_folder}} creates={{java_name}}"
+
+- name: Fix ownership
+  file: state=directory path={{java_name}} owner=root group=root recurse=yes
+
+#need to add java to the path?
+#need to check on this alternative syntax?
+#alternatives --install /usr/bin/java java /usr/java/jdk1.7.0_67/jre/bin/java 200000
+
+- name: Install the libselinux-python package
+  yum: name=libselinux-python state=installed
+
+- lineinfile:
+      dest='/home/vagrant/.bashrc'
+      state=present
+    backrefs=yes
+    regexp='PATH=(["]*)((?!.*?{{extra_path}}).*?)(["]*)$'
+    line="PATH=\1\2{{':'}}{{extra_path}}\3"
+
+# - name: source profile
+#  command: "source /home/vagrant/.bash_profile"
+
+- name: Make Java available for system
+  command: 'alternatives --install "/usr/bin/java" "java" "{{java_name}}/bin/java" 200000'
+
+- name: Clean up
+  file: state=absent path={{java_archive}}
+
+
