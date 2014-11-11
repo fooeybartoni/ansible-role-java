@@ -23,16 +23,17 @@ Set the version/development kit of Java to install, along with any other necessa
 
 ## Dependencies
 
-None.
+- None
 
-## Example Playbook
+## Example Vagrant Playbook (put in parent directory) for deploying use appropriate user name and hosts
 
-    - hosts: servers
-      vars:
-        java_packages:
-          - java-1.6.0-openjdk
+    ---
+    - hosts: all
+      user: vagrant
+      sudo: yes
+    
       roles:
-        - { role: geerlingguy.java }
+        - ansible-role-java
 
 ## License
 
@@ -40,4 +41,4 @@ MIT / BSD
 
 ## Author Information
 
-This role was created in 2014 by [Jeff Geerling](http://jeffgeerling.com/), author of [Ansible for DevOps](http://ansiblefordevops.com/).
+This role was forked in Nov 2014 by [Bruce Goldfeder] (fooey.bartoni@gmail.com) based on the original codebase created in 2014 by [Jeff Geerling](http://jeffgeerling.com/), author of [Ansible for DevOps](http://ansiblefordevops.com/).
