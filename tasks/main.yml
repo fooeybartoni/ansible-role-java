@@ -42,15 +42,6 @@
 - name: Install the libselinux-python package
   yum: name=libselinux-python state=installed
 
-- lineinfile:
-      dest='/home/vagrant/.bashrc'
-      state=present
-    backrefs=yes
-    regexp='PATH=(["]*)((?!.*?{{extra_path}}).*?)(["]*)$'
-    line="PATH=\1\2{{':'}}{{extra_path}}\3"
-
-# - name: source profile
-#  command: "source /home/vagrant/.bash_profile"
 
 - name: Make Java available for system
   command: 'alternatives --install "/usr/bin/java" "java" "{{java_name}}/bin/java" 200000'
